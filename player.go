@@ -1,6 +1,10 @@
 package main
 
-import "github.com/veandco/go-sdl2/sdl"
+import (
+	"time"
+
+	"github.com/veandco/go-sdl2/sdl"
+)
 
 type Player struct {
 	X int32
@@ -14,32 +18,37 @@ func (p *Player) Draw() {
 }
 
 func (p *Player) moveAndFire() {
-	var lx, ly, rx, ry int16
 
-	sdl.Do(func() {
-		lx = controller.Axis(sdl.CONTROLLER_AXIS_LEFTX)
-		ly = controller.Axis(sdl.CONTROLLER_AXIS_LEFTY)
-		rx = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTX)
-		ry = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTY)
-	})
+	for {
+		var lx, ly, rx, ry int16
 
-	if abs16(lx) > DEADZONE {
-		if lx > 0 {
-			p.X += 1
-		} else if lx < 0 {
-			p.X -= 1
+		sdl.Do(func() {
+			lx = controller.Axis(sdl.CONTROLLER_AXIS_LEFTX)
+			ly = controller.Axis(sdl.CONTROLLER_AXIS_LEFTY)
+			rx = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTX)
+			ry = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTY)
+		})
+
+		if abs16(lx) > DEADZONE {
+			if lx > 0 {
+				p.X += 1
+			} else if lx < 0 {
+				p.X -= 1
+			}
 		}
-	}
 
-	if abs16(ly) > DEADZONE {
-		if ly > 0 {
-			p.Y += 1
-		} else if ly < 0 {
-			p.Y -= 1
+		if abs16(ly) > DEADZONE {
+			if ly > 0 {
+				p.Y += 1
+			} else if ly < 0 {
+				p.Y -= 1
+			}
 		}
-	}
 
-	if abs16(rx) > DEADZONE || abs16(ry) > DEADZONE {
-		fire(player.X, player.Y)
+		if abs16(rx) > DEADZONE || abs16(ry) > DEADZONE {
+			fire(player.X, player.Y)
+		}
+
+		time.Sleep(time.Second / 30)
 	}
 }

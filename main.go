@@ -102,6 +102,8 @@ func run() {
 	// defer sdl.Quit()
 	// defer window.Destroy()
 
+	go player.moveAndFire()
+
 	running := true
 	for running {
 		// fmt.Printf("%d %d\n", x, y)
@@ -124,7 +126,6 @@ func run() {
 				}
 			}
 		})
-		player.moveAndFire()
 		time.Sleep(time.Second / 60)
 	}
 }
