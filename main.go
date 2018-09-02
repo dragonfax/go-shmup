@@ -15,8 +15,32 @@ func drawRect(x, y int32) {
 	renderer.SetDrawColor(255, 0, 0, 255)
 	renderer.DrawLine(x, y, x+10, y+10)
 	renderer.DrawLine(x, y, x-10, y+10)
+
+	for i := 0; i < len(bullets); i++ {
+		b := bullets[i]
+		renderer.DrawPoint(b.X, b.Y)
+	}
+
 	// window.UpdateSurface()
 	renderer.Present()
+}
+
+type Bullet struct {
+	X, Y   int32
+	VX, VY int32
+}
+
+var bullets []Bullet
+
+func fire(x, y int32) {
+	bullets = append(bullets, Bullet{X: x, Y: y})
+}
+
+func moveBullets() {
+	for i := 0; i < len(bullets); i++ {
+		bullets[i].X += 1
+		bullets[i].Y += 1
+	}
 }
 
 var surface *sdl.Surface
@@ -90,8 +114,11 @@ func main() {
 						}
 					}
 				}
+			case *sdl.JoyButtonEvent:
+				fire(x, y)
 			}
 		}
+		moveBullets()
 		sdl.Delay(1000 / 60)
 	}
 }
