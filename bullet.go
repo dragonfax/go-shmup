@@ -25,7 +25,7 @@ func (b *Bullet) move() {
 		b.X += int32(math.Cos(b.Angle) * 10)
 		b.Y += int32(math.Sin(b.Angle) * 10)
 
-		if math.Abs(float64(b.X-player.X)) > 100 || math.Abs(float64(b.Y-player.Y)) > 100 {
+		if abs(b.X-player.X) > 100 || abs(b.Y-player.Y) > 100 {
 			// remove this bullet
 			b.Dead = true
 			break

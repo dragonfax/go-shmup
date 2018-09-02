@@ -38,6 +38,28 @@ func radiansToDegrees(r float64) float64 {
 var controller *sdl.GameController
 var renderer *sdl.Renderer
 
+const DEADZONE = 3200
+
+func abs(x int32) int32 {
+	if x > 0 {
+		return x
+	} else if x < 0 {
+		return -x
+	} else {
+		return 0
+	}
+}
+
+func abs16(x int16) int16 {
+	if x > 0 {
+		return x
+	} else if x < 0 {
+		return -x
+	} else {
+		return 0
+	}
+}
+
 func main() {
 	var err error
 	if err = sdl.Init(sdl.INIT_EVERYTHING); err != nil {
@@ -92,20 +114,22 @@ func main() {
 					}
 				}
 			case *sdl.ControllerAxisEvent:
-				if e.Axis == sdl.CONTROLLER_AXIS_LEFTX {
-					if e.Value > 0 {
-						player.X += 1
-					} else if e.Value < 0 {
-						player.X -= 1
+				if abs16(e.Value) > DEADZONE {
+					if e.Axis == sdl.CONTROLLER_AXIS_LEFTX {
+						if e.Value > 0 {
+							player.X += 1
+						} else if e.Value < 0 {
+							player.X -= 1
+						}
+					} else if e.Axis == sdl.CONTROLLER_AXIS_LEFTY {
+						if e.Value > 0 {
+							player.Y += 1
+						} else if e.Value < 0 {
+							player.Y -= 1
+						}
+					} else if e.Axis == sdl.CONTROLLER_AXIS_RIGHTX || e.Axis == sdl.CONTROLLER_AXIS_RIGHTY {
+						fire(player.X, player.Y)
 					}
-				} else if e.Axis == sdl.CONTROLLER_AXIS_LEFTY {
-					if e.Value > 0 {
-						player.Y += 1
-					} else if e.Value < 0 {
-						player.Y -= 1
-					}
-				} else if e.Axis == sdl.CONTROLLER_AXIS_RIGHTX || e.Axis == sdl.CONTROLLER_AXIS_RIGHTY {
-					fire(player.X, player.Y)
 				}
 			}
 		}
