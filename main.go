@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"time"
 
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -21,7 +22,9 @@ func drawRect(x, y int32) {
 
 	for i := 0; i < len(bullets); i++ {
 		b := bullets[i]
-		renderer.DrawPoint(b.X, b.Y)
+		if !b.Dead {
+			renderer.DrawPoint(b.X, b.Y)
+		}
 	}
 
 	// window.UpdateSurface()
@@ -31,16 +34,33 @@ func drawRect(x, y int32) {
 type Bullet struct {
 	X, Y  int32
 	Angle float64 // in Radians
+	Dead  bool
 }
 
-var bullets []Bullet
+func (b *Bullet) move() {
+	for {
+		b.X += int32(math.Cos(b.Angle) * 10)
+		b.Y += int32(math.Sin(b.Angle) * 10)
+
+		if math.Abs(float64(b.X-player.X)) > 100 || math.Abs(float64(b.Y-player.Y)) > 100 {
+			// remove this bullet
+			b.Dead = true
+			break
+		}
+
+		time.Sleep(time.Second / 30)
+	}
+}
+
+var bullets []*Bullet
 
 func fire(x, y int32) {
 	xv := controller.Axis(sdl.CONTROLLER_AXIS_RIGHTX)
 	yv := controller.Axis(sdl.CONTROLLER_AXIS_RIGHTY)
 	r := math.Atan2(float64(yv), float64(xv))
-	fmt.Println("fire angle ", r)
-	bullets = append(bullets, Bullet{X: x, Y: y, Angle: r})
+	bullet := &Bullet{X: x, Y: y, Angle: r}
+	bullets = append(bullets, bullet)
+	go bullet.move()
 }
 
 func degreesToRadians(d float64) float64 {
@@ -51,22 +71,15 @@ func radiansToDegrees(r float64) float64 {
 	return r * 180 / math.Pi
 }
 
-func moveBullets(x, y int32) {
-	for i := len(bullets) - 1; i >= 0; i-- {
-		b := bullets[i]
-		b.X += int32(math.Cos(b.Angle) * 10)
-		b.Y += int32(math.Sin(b.Angle) * 10)
-		bullets[i] = b
-
-		if math.Abs(float64(b.X-x)) > 100 || math.Abs(float64(b.Y-y)) > 100 {
-			// remove this bullet
-			bullets = append(bullets[:i], bullets[i+1:]...)
-		}
-	}
-}
-
 var controller *sdl.GameController
 var renderer *sdl.Renderer
+
+type Player struct {
+	X int32
+	Y int32
+}
+
+var player = Player{}
 
 func main() {
 	var err error
@@ -104,12 +117,10 @@ func main() {
 		panic(err)
 	} */
 
-	var x, y int32 = 0, 0
-
 	running := true
 	for running {
 		// fmt.Printf("%d %d\n", x, y)
-		drawRect(x, y)
+		drawRect(player.X, player.Y)
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch e := event.(type) {
 			case *sdl.QuitEvent:
@@ -126,22 +137,21 @@ func main() {
 			case *sdl.ControllerAxisEvent:
 				if e.Axis == sdl.CONTROLLER_AXIS_LEFTX {
 					if e.Value > 0 {
-						x += 1
+						player.X += 1
 					} else if e.Value < 0 {
-						x -= 1
+						player.X -= 1
 					}
 				} else if e.Axis == sdl.CONTROLLER_AXIS_LEFTY {
 					if e.Value > 0 {
-						y += 1
+						player.Y += 1
 					} else if e.Value < 0 {
-						y -= 1
+						player.Y -= 1
 					}
 				} else if e.Axis == sdl.CONTROLLER_AXIS_RIGHTX || e.Axis == sdl.CONTROLLER_AXIS_RIGHTY {
-					fire(x, y)
+					fire(player.X, player.Y)
 				}
 			}
 		}
-		moveBullets(x, y)
 		sdl.Delay(1000 / 60)
 	}
 }
