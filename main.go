@@ -51,12 +51,17 @@ func radiansToDegrees(r float64) float64 {
 	return r * 180 / math.Pi
 }
 
-func moveBullets() {
-	for i := 0; i < len(bullets); i++ {
+func moveBullets(x, y int32) {
+	for i := len(bullets) - 1; i >= 0; i-- {
 		b := bullets[i]
 		b.X += int32(math.Cos(b.Angle) * 10)
 		b.Y += int32(math.Sin(b.Angle) * 10)
 		bullets[i] = b
+
+		if math.Abs(float64(b.X-x)) > 100 || math.Abs(float64(b.Y-y)) > 100 {
+			// remove this bullet
+			bullets = append(bullets[:i], bullets[i+1:]...)
+		}
 	}
 }
 
@@ -136,7 +141,7 @@ func main() {
 				}
 			}
 		}
-		moveBullets()
+		moveBullets(x, y)
 		sdl.Delay(1000 / 60)
 	}
 }
