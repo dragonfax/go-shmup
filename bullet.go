@@ -31,6 +31,11 @@ func (b *Bullet) move() {
 			break
 		}
 
+		m := findMonsterCollision(b.X, b.Y)
+		if m != nil {
+			m.remove()
+		}
+
 		time.Sleep(time.Second / 30)
 	}
 }

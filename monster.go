@@ -61,6 +61,15 @@ func addMonster() {
 	go m.move()
 }
 
+func findMonsterCollision(x, y int32) *Monster {
+	for _, m := range monsterList {
+		if (x >= m.X && x <= m.X+10) && (y >= m.Y && y <= m.X+10) {
+			return m
+		}
+	}
+	return nil
+}
+
 func (m *Monster) remove() {
 	monsterLock.Lock()
 
