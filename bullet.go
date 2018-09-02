@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"sync"
 	"time"
 
 	"github.com/veandco/go-sdl2/sdl"
@@ -26,8 +27,7 @@ func (b *Bullet) move() {
 		b.Y += int32(math.Sin(b.Angle) * 10)
 
 		if abs(b.X-player.X) > 100 || abs(b.Y-player.Y) > 100 {
-			// remove this bullet
-			b.Dead = true
+			b.remove()
 			break
 		}
 
@@ -35,7 +35,23 @@ func (b *Bullet) move() {
 	}
 }
 
+func (b *Bullet) remove() {
+	b.Dead = true
+	bulletsLock.Lock()
+	var i int
+	for i = 0; i < len(bullets); i++ {
+		if bullets[i] == b {
+			break
+		}
+	}
+	//remove this bullet
+	bullets = append(bullets[:i], bullets[i+1:]...)
+	bulletsLock.Unlock()
+
+}
+
 var bullets []*Bullet
+var bulletsLock = &sync.Mutex{}
 
 func drawBullets() {
 	for i := 0; i < len(bullets); i++ {
@@ -51,6 +67,8 @@ func fire(x, y int32) {
 	})
 	r := math.Atan2(float64(yv), float64(xv))
 	bullet := &Bullet{X: x, Y: y, Angle: r}
+	bulletsLock.Lock()
 	bullets = append(bullets, bullet)
+	bulletsLock.Unlock()
 	go bullet.move()
 }
