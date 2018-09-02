@@ -7,6 +7,10 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+const DEADZONE = 3200
+
+var controller *sdl.GameController
+
 func handleInput(done *sync.WaitGroup) {
 	running := true
 	for running {

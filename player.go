@@ -6,6 +6,8 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+var player = Player{}
+
 type Player struct {
 	X int32
 	Y int32
