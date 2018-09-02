@@ -3,30 +3,12 @@ package main
 import (
 	"fmt"
 	"math"
-	"time"
+	"sync"
 
 	"github.com/veandco/go-sdl2/sdl"
 )
 
 var player = Player{}
-
-func drawRect(x, y int32) {
-	// surface.FillRect(nil, 0)
-	// rect := sdl.Rect{X: x, Y: y, W: 200, H: 200}
-	// surface.FillRect(&rect, 0xffff0000)
-
-	renderer.SetDrawColor(0, 0, 0, 255)
-	renderer.Clear()
-
-	player.Draw()
-
-	for i := 0; i < len(bullets); i++ {
-		bullets[i].draw()
-	}
-
-	// window.UpdateSurface()
-	renderer.Present()
-}
 
 func degreesToRadians(d float64) float64 {
 	return d * math.Pi / 180
@@ -102,32 +84,15 @@ func run() {
 	// defer sdl.Quit()
 	// defer window.Destroy()
 
+	go render()
 	go player.moveAndFire()
 
-	running := true
-	for running {
-		// fmt.Printf("%d %d\n", x, y)
+	done := &sync.WaitGroup{}
+	done.Add(1)
+	go handleInput(done)
 
-		sdl.Do(func() {
-			drawRect(player.X, player.Y)
-			for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-				switch e := event.(type) {
-				case *sdl.QuitEvent:
-					println("Quit")
-					running = false
-					break
-				case *sdl.KeyboardEvent:
-					if e.Type == sdl.KEYDOWN {
-						if e.Keysym.Sym == sdl.K_q {
-							running = false
-							break
-						}
-					}
-				}
-			}
-		})
-		time.Sleep(time.Second / 60)
-	}
+	// wait for input to say we're done.
+	done.Wait()
 }
 
 func main() {
