@@ -58,9 +58,7 @@ func drawRect() {
 
 	player.Draw()
 
-	for i := 0; i < len(bullets); i++ {
-		bullets[i].draw()
-	}
+	drawBullets()
 
 	// window.UpdateSurface()
 	renderer.Present()

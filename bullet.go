@@ -37,6 +37,12 @@ func (b *Bullet) move() {
 
 var bullets []*Bullet
 
+func drawBullets() {
+	for i := 0; i < len(bullets); i++ {
+		bullets[i].draw()
+	}
+}
+
 func fire(x, y int32) {
 	var xv, yv int16
 	sdl.Do(func() {
