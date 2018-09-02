@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"math"
-	"time"
 
 	"github.com/veandco/go-sdl2/sdl"
 )
+
+var player = Player{}
 
 func drawRect(x, y int32) {
 	// surface.FillRect(nil, 0)
@@ -16,51 +17,14 @@ func drawRect(x, y int32) {
 	renderer.SetDrawColor(0, 0, 0, 255)
 	renderer.Clear()
 
-	renderer.SetDrawColor(255, 0, 0, 255)
-	renderer.DrawLine(x, y, x+10, y+10)
-	renderer.DrawLine(x, y, x-10, y+10)
+	player.Draw()
 
 	for i := 0; i < len(bullets); i++ {
-		b := bullets[i]
-		if !b.Dead {
-			renderer.DrawPoint(b.X, b.Y)
-		}
+		bullets[i].draw()
 	}
 
 	// window.UpdateSurface()
 	renderer.Present()
-}
-
-type Bullet struct {
-	X, Y  int32
-	Angle float64 // in Radians
-	Dead  bool
-}
-
-func (b *Bullet) move() {
-	for {
-		b.X += int32(math.Cos(b.Angle) * 10)
-		b.Y += int32(math.Sin(b.Angle) * 10)
-
-		if math.Abs(float64(b.X-player.X)) > 100 || math.Abs(float64(b.Y-player.Y)) > 100 {
-			// remove this bullet
-			b.Dead = true
-			break
-		}
-
-		time.Sleep(time.Second / 30)
-	}
-}
-
-var bullets []*Bullet
-
-func fire(x, y int32) {
-	xv := controller.Axis(sdl.CONTROLLER_AXIS_RIGHTX)
-	yv := controller.Axis(sdl.CONTROLLER_AXIS_RIGHTY)
-	r := math.Atan2(float64(yv), float64(xv))
-	bullet := &Bullet{X: x, Y: y, Angle: r}
-	bullets = append(bullets, bullet)
-	go bullet.move()
 }
 
 func degreesToRadians(d float64) float64 {
@@ -73,13 +37,6 @@ func radiansToDegrees(r float64) float64 {
 
 var controller *sdl.GameController
 var renderer *sdl.Renderer
-
-type Player struct {
-	X int32
-	Y int32
-}
-
-var player = Player{}
 
 func main() {
 	var err error
