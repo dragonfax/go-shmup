@@ -14,7 +14,15 @@ func (p *Player) Draw() {
 }
 
 func (p *Player) moveAndFire() {
-	lx := controller.Axis(sdl.CONTROLLER_AXIS_LEFTX)
+	var lx, ly, rx, ry int16
+
+	sdl.Do(func() {
+		lx = controller.Axis(sdl.CONTROLLER_AXIS_LEFTX)
+		ly = controller.Axis(sdl.CONTROLLER_AXIS_LEFTY)
+		rx = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTX)
+		ry = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTY)
+	})
+
 	if abs16(lx) > DEADZONE {
 		if lx > 0 {
 			p.X += 1
@@ -23,7 +31,6 @@ func (p *Player) moveAndFire() {
 		}
 	}
 
-	ly := controller.Axis(sdl.CONTROLLER_AXIS_LEFTY)
 	if abs16(ly) > DEADZONE {
 		if ly > 0 {
 			p.Y += 1
@@ -32,8 +39,6 @@ func (p *Player) moveAndFire() {
 		}
 	}
 
-	rx := controller.Axis(sdl.CONTROLLER_AXIS_RIGHTX)
-	ry := controller.Axis(sdl.CONTROLLER_AXIS_RIGHTY)
 	if abs16(rx) > DEADZONE || abs16(ry) > DEADZONE {
 		fire(player.X, player.Y)
 	}

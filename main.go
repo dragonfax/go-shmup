@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"time"
 
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -60,80 +61,74 @@ func abs16(x int16) int16 {
 	}
 }
 
-func main() {
-	var err error
-	if err = sdl.Init(sdl.INIT_EVERYTHING); err != nil {
-		panic(err)
-	}
-	defer sdl.Quit()
+var window *sdl.Window
 
-	var window *sdl.Window
-	window, err = sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
-		800, 600, 0)
-	if err != nil {
-		panic(err)
-	}
-	defer window.Destroy()
+func run() {
+	sdl.Do(func() {
 
-	renderer, err = sdl.CreateRenderer(window, -1, 0)
-	if err != nil {
-		panic(err)
-	}
+		var err error
+		if err = sdl.Init(sdl.INIT_EVERYTHING); err != nil {
+			panic(err)
+		}
 
-	n := sdl.NumJoysticks()
-	// var joystick *sdl.Joystick
-	if n < 1 {
-		panic(fmt.Sprintf("not enough joysticks %d", n))
-	}
-	if !sdl.IsGameController(0) {
-		panic("no game controller")
-	}
-	sdl.GameControllerEventState(sdl.ENABLE) // not used
-	controller = sdl.GameControllerOpen(0)
+		window, err = sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
+			800, 600, 0)
+		if err != nil {
+			panic(err)
+		}
 
-	/* surface, err = window.GetSurface()
-	if err != nil {
-		panic(err)
-	} */
+		renderer, err = sdl.CreateRenderer(window, -1, 0)
+		if err != nil {
+			panic(err)
+		}
+
+		n := sdl.NumJoysticks()
+		// var joystick *sdl.Joystick
+		if n < 1 {
+			panic(fmt.Sprintf("not enough joysticks %d", n))
+		}
+		if !sdl.IsGameController(0) {
+			panic("no game controller")
+		}
+		sdl.GameControllerEventState(sdl.ENABLE) // not used
+		controller = sdl.GameControllerOpen(0)
+
+		/* surface, err = window.GetSurface()
+		if err != nil {
+			panic(err)
+		} */
+
+	})
+	// defer sdl.Quit()
+	// defer window.Destroy()
 
 	running := true
 	for running {
 		// fmt.Printf("%d %d\n", x, y)
-		drawRect(player.X, player.Y)
-		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-			switch e := event.(type) {
-			case *sdl.QuitEvent:
-				println("Quit")
-				running = false
-				break
-			case *sdl.KeyboardEvent:
-				if e.Type == sdl.KEYDOWN {
-					if e.Keysym.Sym == sdl.K_q {
-						running = false
-						break
+
+		sdl.Do(func() {
+			drawRect(player.X, player.Y)
+			for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+				switch e := event.(type) {
+				case *sdl.QuitEvent:
+					println("Quit")
+					running = false
+					break
+				case *sdl.KeyboardEvent:
+					if e.Type == sdl.KEYDOWN {
+						if e.Keysym.Sym == sdl.K_q {
+							running = false
+							break
+						}
 					}
 				}
-				/*case *sdl.ControllerAxisEvent:
-				if abs16(e.Value) > DEADZONE {
-					if e.Axis == sdl.CONTROLLER_AXIS_LEFTX {
-						if e.Value > 0 {
-							player.X += 1
-						} else if e.Value < 0 {
-							player.X -= 1
-						}
-					} else if e.Axis == sdl.CONTROLLER_AXIS_LEFTY {
-						if e.Value > 0 {
-							player.Y += 1
-						} else if e.Value < 0 {
-							player.Y -= 1
-						}
-					} else if e.Axis == sdl.CONTROLLER_AXIS_RIGHTX || e.Axis == sdl.CONTROLLER_AXIS_RIGHTY {
-						fire(player.X, player.Y)
-					}
-				} */
 			}
-		}
+		})
 		player.moveAndFire()
-		sdl.Delay(1000 / 60)
+		time.Sleep(time.Second / 60)
 	}
+}
+
+func main() {
+	sdl.Main(run)
 }

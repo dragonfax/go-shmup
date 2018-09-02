@@ -38,8 +38,11 @@ func (b *Bullet) move() {
 var bullets []*Bullet
 
 func fire(x, y int32) {
-	xv := controller.Axis(sdl.CONTROLLER_AXIS_RIGHTX)
-	yv := controller.Axis(sdl.CONTROLLER_AXIS_RIGHTY)
+	var xv, yv int16
+	sdl.Do(func() {
+		xv = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTX)
+		yv = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTY)
+	})
 	r := math.Atan2(float64(yv), float64(xv))
 	bullet := &Bullet{X: x, Y: y, Angle: r}
 	bullets = append(bullets, bullet)
