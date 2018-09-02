@@ -88,7 +88,7 @@ func main() {
 	if !sdl.IsGameController(0) {
 		panic("no game controller")
 	}
-	sdl.GameControllerEventState(sdl.ENABLE)
+	sdl.GameControllerEventState(sdl.ENABLE) // not used
 	controller = sdl.GameControllerOpen(0)
 
 	/* surface, err = window.GetSurface()
@@ -113,7 +113,7 @@ func main() {
 						break
 					}
 				}
-			case *sdl.ControllerAxisEvent:
+				/*case *sdl.ControllerAxisEvent:
 				if abs16(e.Value) > DEADZONE {
 					if e.Axis == sdl.CONTROLLER_AXIS_LEFTX {
 						if e.Value > 0 {
@@ -130,9 +130,10 @@ func main() {
 					} else if e.Axis == sdl.CONTROLLER_AXIS_RIGHTX || e.Axis == sdl.CONTROLLER_AXIS_RIGHTY {
 						fire(player.X, player.Y)
 					}
-				}
+				} */
 			}
 		}
+		player.moveAndFire()
 		sdl.Delay(1000 / 60)
 	}
 }
