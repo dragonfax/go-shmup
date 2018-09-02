@@ -60,6 +60,8 @@ func drawRect() {
 
 	drawBullets()
 
+	drawMonsters()
+
 	// window.UpdateSurface()
 	renderer.Present()
 }

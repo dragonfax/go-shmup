@@ -36,6 +36,8 @@ func run() {
 	done.Add(1)
 	go handleInput(done)
 
+	go monsterSpawner()
+
 	// wait for input to say we're done.
 	done.Wait()
 }
