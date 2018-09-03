@@ -94,7 +94,9 @@ func (p *Player) UpdateAngle() {
 		yv = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTY)
 	})
 	r := math.Atan2(float64(yv), float64(xv))
-	p.AngleDegrees = radians2Degrees(r)
+	a := radians2Degrees(r)
+	a += 90
+	p.AngleDegrees = a
 }
 
 func radians2Degrees(r float64) (degrees float64) {

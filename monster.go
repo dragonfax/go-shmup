@@ -63,7 +63,7 @@ func addMonster() {
 
 func findMonsterCollision(x, y int32) *Monster {
 	for _, m := range monsterList {
-		if (x >= m.X && x <= m.X+10) && (y >= m.Y && y <= m.X+10) {
+		if (x >= m.X && x <= m.X+10) && (y >= m.Y && y <= m.Y+10) {
 			return m
 		}
 	}
