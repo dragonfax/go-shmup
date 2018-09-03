@@ -29,6 +29,8 @@ func abs16(x int16) int16 {
 func run() {
 	initRender()
 
+	player.prepSprite()
+
 	go render()
 	go player.moveAndFire()
 
