@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 	"time"
 
@@ -61,7 +60,6 @@ func (player *Player) Draw() {
 		vx[i] = int16(pr.X)
 		vy[i] = int16(pr.Y)
 	}
-	fmt.Println(vx, " ", vy)
 	gfx.PolygonColor(renderer, vx, vy, player_color)
 }
 
