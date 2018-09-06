@@ -65,11 +65,30 @@ func drawBullets() {
 }
 
 func fire(x, y int32) {
+	/* TODO duplicate code with player */
 	var xv, yv int16
-	sdl.Do(func() {
-		xv = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTX)
-		yv = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTY)
-	})
+	if controller != nil {
+		sdl.Do(func() {
+			xv = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTX)
+			yv = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTY)
+		})
+	}
+	if keyboardMoveDown || keyboardMoveLeft || keyboardMoveRight || keyboardMoveUp {
+		yv = 0
+		xv = 0
+		if keyboardMoveDown {
+			yv = 1
+		}
+		if keyboardMoveLeft {
+			xv = -1
+		}
+		if keyboardMoveRight {
+			xv = 1
+		}
+		if keyboardMoveUp {
+			yv = -1
+		}
+	}
 	r := math.Atan2(float64(yv), float64(xv))
 	bullet := &Bullet{X: x, Y: y, Angle: r}
 	bulletsLock.Lock()

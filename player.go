@@ -4,6 +4,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/veandco/go-sdl2/gfx"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -40,9 +41,11 @@ func (p *Player) prepSprite() {
 	renderer.SetDrawColor(0, 0, 0, 0)
 	renderer.Clear()
 
-	renderer.SetDrawColor(255, 0, 0, 255)
+	gfx.CircleRGBA(renderer, 5, 5, 4, 255, 0, 0, 255)
+	/* renderer.SetDrawColor(255, 0, 0, 255)
 	renderer.DrawLine(5, 0, 0, 10)
 	renderer.DrawLine(5, 0, 10, 10)
+	*/
 	renderer.Present()
 }
 
@@ -55,12 +58,30 @@ func (p *Player) moveAndFire() {
 	for {
 		var lx, ly, rx, ry int16
 
-		sdl.Do(func() {
-			lx = controller.Axis(sdl.CONTROLLER_AXIS_LEFTX)
-			ly = controller.Axis(sdl.CONTROLLER_AXIS_LEFTY)
-			rx = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTX)
-			ry = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTY)
-		})
+		if controller != nil {
+			sdl.Do(func() {
+				lx = controller.Axis(sdl.CONTROLLER_AXIS_LEFTX)
+				ly = controller.Axis(sdl.CONTROLLER_AXIS_LEFTY)
+				rx = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTX)
+				ry = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTY)
+			})
+		}
+
+		if keyboardMoveUp {
+			p.Y -= 1
+		}
+
+		if keyboardMoveDown {
+			p.Y += 1
+		}
+
+		if keyboardMoveLeft {
+			p.X -= 1
+		}
+
+		if keyboardMoveRight {
+			p.X += 1
+		}
 
 		if abs16(lx) > DEADZONE {
 			if lx > 0 {
@@ -78,7 +99,7 @@ func (p *Player) moveAndFire() {
 			}
 		}
 
-		if abs16(rx) > DEADZONE || abs16(ry) > DEADZONE {
+		if abs16(rx) > DEADZONE || abs16(ry) > DEADZONE || keyboardMoveDown || keyboardMoveLeft || keyboardMoveRight || keyboardMoveUp {
 			p.UpdateAngle()
 			fire(player.X, player.Y)
 		}
@@ -89,10 +110,28 @@ func (p *Player) moveAndFire() {
 
 func (p *Player) UpdateAngle() {
 	var xv, yv int16
-	sdl.Do(func() {
-		xv = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTX)
-		yv = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTY)
-	})
+	if controller != nil {
+		sdl.Do(func() {
+			xv = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTX)
+			yv = controller.Axis(sdl.CONTROLLER_AXIS_RIGHTY)
+		})
+	}
+	if keyboardMoveDown || keyboardMoveLeft || keyboardMoveRight || keyboardMoveUp {
+		yv = 0
+		xv = 0
+		if keyboardMoveDown {
+			yv = 1
+		}
+		if keyboardMoveLeft {
+			xv = -1
+		}
+		if keyboardMoveRight {
+			xv = 1
+		}
+		if keyboardMoveUp {
+			yv = -1
+		}
+	}
 	r := math.Atan2(float64(yv), float64(xv))
 	a := radians2Degrees(r)
 	a += 90

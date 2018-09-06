@@ -28,6 +28,7 @@ func abs16(x int16) int16 {
 
 func run() {
 	initRender()
+	InitJoystick()
 
 	player.prepSprite()
 

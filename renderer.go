@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/veandco/go-sdl2/sdl"
@@ -29,19 +28,8 @@ func initRender() {
 			panic(err)
 		}
 
-		n := sdl.NumJoysticks()
-		if n < 1 {
-			panic(fmt.Sprintf("not enough joysticks %d", n))
-		}
-		if !sdl.IsGameController(0) {
-			panic("no game controller")
-		}
-		sdl.GameControllerEventState(sdl.ENABLE) // not used
-		controller = sdl.GameControllerOpen(0)
-
 	})
 }
-
 func drawRect() {
 
 	renderer.SetDrawColor(0, 0, 0, 255)
