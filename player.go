@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math"
 	"time"
 
@@ -14,43 +15,77 @@ type Player struct {
 	X            int32
 	Y            int32
 	Texture      *sdl.Texture
-	Rect         sdl.Rect
 	AngleDegrees float64
 }
 
-func (p *Player) prepSprite() {
-	p.Rect = sdl.Rect{X: 0, Y: 0, W: 10, H: 10}
+const PLAYER_SPRITE_WIDTH = 20 // on screen size.
 
-	pf, err := window.GetPixelFormat()
-	if err != nil {
-		panic(err)
-	}
-
-	t, err := renderer.CreateTexture(pf, sdl.TEXTUREACCESS_TARGET, 10, 10)
-	if err != nil {
-		panic(err)
-	}
-	player.Texture = t
-
-	err = renderer.SetRenderTarget(t)
-	if err != nil {
-		panic(err)
-	}
-	defer renderer.SetRenderTarget(nil)
-
-	renderer.SetDrawColor(0, 0, 0, 0)
-	renderer.Clear()
-
-	gfx.CircleRGBA(renderer, 5, 5, 4, 255, 0, 0, 255)
-	/* renderer.SetDrawColor(255, 0, 0, 255)
-	renderer.DrawLine(5, 0, 0, 10)
-	renderer.DrawLine(5, 0, 10, 10)
-	*/
-	renderer.Present()
+type Point struct {
+	X int32
+	Y int32
 }
 
-func (p *Player) Draw() {
-	renderer.CopyEx(player.Texture, &p.Rect, &sdl.Rect{X: p.X, Y: p.Y, W: 10, H: 10}, p.AngleDegrees, nil, sdl.FLIP_NONE)
+var player_color = sdl.Color{255, 255, 255, 255}
+var background_color = sdl.Color{0, 0, 0, 255}
+
+var player_v = []Point{
+	Point{
+		-PLAYER_SPRITE_WIDTH / 2,
+		PLAYER_SPRITE_WIDTH,
+	},
+	Point{
+		0,
+		PLAYER_SPRITE_WIDTH * 2,
+	},
+	Point{
+		PLAYER_SPRITE_WIDTH / 2,
+		PLAYER_SPRITE_WIDTH,
+	},
+}
+
+func (player *Player) Draw() {
+	pc := Point{ // player center
+		X: player.X + PLAYER_SPRITE_WIDTH/2,
+		Y: player.Y + PLAYER_SPRITE_WIDTH/2,
+	}
+
+	gfx.FilledCircleColor(renderer, pc.X, pc.Y, PLAYER_SPRITE_WIDTH/2, player_color)
+	gfx.FilledCircleColor(renderer, pc.X, pc.Y, PLAYER_SPRITE_WIDTH/4, background_color)
+
+	len_p := len(player_v)
+	var vx = make([]int16, len_p)
+	var vy = make([]int16, len_p)
+	for i, p := range player_v {
+		pt := Point{p.X + pc.X, p.Y + pc.Y}
+		pr := rotate_point(pc, degrees2Radians(player.AngleDegrees+180), pt)
+		vx[i] = int16(pr.X)
+		vy[i] = int16(pr.Y)
+	}
+	fmt.Println(vx, " ", vy)
+	gfx.PolygonColor(renderer, vx, vy, player_color)
+}
+
+// rotate x,y around cx,cy by angle (radians)
+func rotate_point(center Point, angle float64, point Point) Point {
+	var s = math.Sin(angle)
+	var c = math.Cos(angle)
+
+	// translate point back to origin:
+	point.X -= center.X
+	point.Y -= center.Y
+
+	var xf = float64(point.X)
+	var yf = float64(point.Y)
+
+	// rotate point
+	xnew := xf*c - yf*s
+	ynew := xf*s + yf*c
+
+	// translate point back:
+	x := int32(xnew) + center.X
+	y := int32(ynew) + center.Y
+
+	return Point{x, y}
 }
 
 func (p *Player) moveAndFire() {
@@ -140,4 +175,8 @@ func (p *Player) UpdateAngle() {
 
 func radians2Degrees(r float64) (degrees float64) {
 	return r * 180 / math.Pi
+}
+
+func degrees2Radians(d float64) (radians float64) {
+	return d * math.Pi / 180
 }

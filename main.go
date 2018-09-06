@@ -30,8 +30,6 @@ func run() {
 	initRender()
 	InitJoystick()
 
-	player.prepSprite()
-
 	go render()
 	go player.moveAndFire()
 

@@ -90,7 +90,7 @@ func fire(x, y int32) {
 		}
 	}
 	r := math.Atan2(float64(yv), float64(xv))
-	bullet := &Bullet{X: x, Y: y, Angle: r}
+	bullet := &Bullet{X: x + PLAYER_SPRITE_WIDTH/2, Y: y + PLAYER_SPRITE_WIDTH/2, Angle: r}
 	bulletsLock.Lock()
 	bullets = append(bullets, bullet)
 	bulletsLock.Unlock()
